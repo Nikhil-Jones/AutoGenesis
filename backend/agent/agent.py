@@ -4,12 +4,21 @@ Autogenesis AI Agent - Supports Groq API (primary) with Gemini fallback.
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 # Check for Groq API key first, then Gemini
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+gemini_env = os.getenv("GEMINI_API_KEY") # renamed to avoid conflict
+GEMINI_API_KEY = gemini_env
 MOCK_MODE = os.getenv("MOCK_MODE", "false").lower() == "true"
+
+# Define log_error helper
+def log_agent_error(msg):
+    try:
+        with open("agent_last_error.log", "w") as f:
+            f.write(str(msg))
+    except:
+        pass
 
 # Determine which provider to use
 USE_GROQ = GROQ_API_KEY is not None
@@ -34,74 +43,7 @@ def is_rate_limited():
     """Check if currently rate limited."""
     return _rate_limited
 
-def run_agent(idea: str, mode: str = "plan"):
-    """
-    Main agent function - routes to appropriate AI provider.
-    Returns response with rate_limited flag when applicable.
-    """
-    global _rate_limited
-    
-    # CHECK FOR PRELOADED DEMOS (Hackathon Mode)
-    from .preloaded import get_preloaded_project
-    preloaded = get_preloaded_project(idea)
-    
-    if preloaded and mode != "optimize": 
-        print(f"✨ Using preloaded demo for: {idea}")
-        
-        if mode == "plan":
-            # Return just the plan part for planner.py
-            return preloaded
-            
-        elif mode == "code":
-            # Extract filename and return specific code logic
-            filename = "main.py" # default
-            for line in idea.split("\n"):
-                if "FILE TO CREATE:" in line or "FILE:" in line:
-                    filename = line.split(":")[-1].strip()
-                    break
-            
-            # Find matching file in preloaded code
-            # We check if the requested filename ends with one of our preloaded files
-            # because path might differ (e.g. "frontend/index.html" vs "index.html")
-            code_content = ""
-            for pre_file, content in preloaded["all_code"].items():
-                if filename.endswith(pre_file):
-                    code_content = content
-                    break
-            
-            if not code_content:
-                # If file not found in preloaded (e.g. tests, dockerfile), return empty 
-                # or let it fall through to normal generation? 
-                # Better to let it generate normally or return valid empty structure.
-                # But for 'main.js', 'index.html' we MUST return content.
-                pass 
-            else:
-                 return {"code": code_content}
-
-        # If we reach here, we might be in some other mode or file not found in preloaded
-        # For simple demo, we can just let it fall through to normal generation 
-        # OR implementation specific logic.
-        # But wait, if I return None, it continues below.
-    
-    if MOCK_MODE:
-        _rate_limited = False
-        return mock_response(idea, mode)
-    
-    if USE_GROQ:
-        result = groq_request(idea, mode)
-        # Check if it fell back to mock (rate limited)
-        if result.get("_mock_fallback"):
-            _rate_limited = True
-            del result["_mock_fallback"]
-        else:
-            _rate_limited = False
-        return result
-    elif USE_GEMINI:
-        return gemini_request(idea, mode)
-    else:
-        return mock_response(idea, mode)
-
-def mock_response(idea: str, mode: str):
+def mock_response(idea: str, mode: str, error_msg: str = ""):
     """Language-aware mock responses with unique content per project."""
     idea_lower = idea.lower()
     
@@ -145,8 +87,6 @@ def mock_response(idea: str, mode: str):
             ],
             "files": files
         }
-    
-
 
     elif mode == "optimize":
         return {"response": f"I optimized your prompt directly: Build a professional {idea} with modern UI, robust error handling, and complete documentation."}
@@ -160,7 +100,9 @@ def mock_response(idea: str, mode: str):
                 break
         
         # Detect project theme from idea for unique content
-        title = "Welcome"
+        title = "Welcome (Fallback Mode)"
+        description = f"Generated in fallback mode. Error: {error_msg}" if error_msg else "Built with Autogenesis Fallback"
+        
         if "portfolio" in idea_lower:
             title = "My Portfolio"
         elif "landing" in idea_lower:
@@ -169,15 +111,11 @@ def mock_response(idea: str, mode: str):
             title = "AI Assistant"
         elif "calculator" in idea_lower:
             title = "Calculator"
-        elif "todo" in idea_lower:
-            title = "Task Manager"
-        elif "crud" in idea_lower:
-            title = "Data Manager"
         
         # Return appropriate code based on filename
         if filename.endswith(".css"):
-            primary = "#6366f1" if "portfolio" not in idea_lower else "#10b981"
-            return {"code": f"""/* Generated Styles */
+            primary = "#6366f1"
+            return {"code": f"""/* Fallback CSS (Error: {error_msg}) */
 :root {{
     --primary: {primary};
     --bg: #0a0a0a;
@@ -191,38 +129,18 @@ body {{
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-}}
-.container {{
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 3rem 2rem;
+    padding: 2rem;
 }}
 h1 {{
-    font-size: 3rem;
-    font-weight: 700;
+    color: var(--primary);
     margin-bottom: 1rem;
-    background: linear-gradient(135deg, var(--primary), #8b5cf6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
 }}
-p {{ color: var(--muted); margin-bottom: 2rem; }}
-button {{
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
+.error-banner {{
+    background: #ef4444; 
+    color: white; 
+    padding: 1rem; 
+    margin-bottom: 2rem; 
     border-radius: 0.5rem;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: transform 0.2s;
-}}
-button:hover {{ transform: translateY(-2px); }}
-.card {{
-    background: var(--surface);
-    border: 1px solid #222;
-    border-radius: 1rem;
-    padding: 2rem;
-    margin-top: 2rem;
 }}
 """}
         elif filename.endswith(".html"):
@@ -236,17 +154,10 @@ button:hover {{ transform: translateY(-2px); }}
 </head>
 <body>
     <div class="container">
+        {f'<div class="error-banner"><h3>Generation Failed</h3><p>{error_msg}</p><p>Check backend logs.</p></div>' if error_msg else ''}
         <h1>{title}</h1>
-        <p>Built with Autogenesis - AI-powered code generation</p>
+        <p>{description}</p>
         <button id="main-btn">Get Started</button>
-        <div class="card">
-            <h3>Features</h3>
-            <ul style="color: #888; margin-top: 1rem; padding-left: 1.5rem;">
-                <li>Fast and responsive</li>
-                <li>Modern design</li>
-                <li>Easy to customize</li>
-            </ul>
-        </div>
     </div>
     <script src="main.js"></script>
 </body>
@@ -255,17 +166,6 @@ button:hover {{ transform: translateY(-2px); }}
             return {"code": f"""// {title} - JavaScript
 document.addEventListener('DOMContentLoaded', () => {{
     console.log('{title} initialized');
-    
-    const btn = document.getElementById('main-btn');
-    if (btn) {{
-        btn.addEventListener('click', () => {{
-            btn.textContent = 'Loading...';
-            setTimeout(() => {{
-                btn.textContent = 'Done!';
-                btn.style.background = '#10b981';
-            }}, 1000);
-        }});
-    }}
 }});
 """}
         else:
@@ -274,11 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {{
 def main():
     """Entry point."""
     print("{title} started!")
-    run_app()
-
-def run_app():
-    """Core application logic."""
-    print("Running...")
 
 if __name__ == "__main__":
     main()
@@ -359,7 +254,8 @@ Code to review:
         
     except Exception as e:
         print(f"Groq API error: {e}")
-        result = mock_response(idea, mode)
+        log_agent_error(f"Groq Error: {e}")
+        result = mock_response(idea, mode, error_msg=str(e))
         result["_mock_fallback"] = True  # Flag for rate limit tracking
         return result
 
@@ -385,5 +281,58 @@ def gemini_request(idea: str, mode: str):
     except Exception as e:
         if "429" in str(e):
             print(f"Gemini quota exceeded, using mock: {e}")
-            return mock_response(idea, mode)
+            return mock_response(idea, mode, error_msg="Gemini 429: Rate Limited")
+        log_agent_error(f"Gemini Error: {e}")
         return {"error": str(e)}
+
+def run_agent(idea: str, mode: str = "plan"):
+    """
+    Main agent function - routes to appropriate AI provider.
+    Returns response with rate_limited flag when applicable.
+    """
+    global _rate_limited
+    
+    # CHECK FOR PRELOADED DEMOS (Hackathon Mode)
+    from .preloaded import get_preloaded_project
+    preloaded = get_preloaded_project(idea)
+    
+    if preloaded and mode != "optimize": 
+        print(f"✨ Using preloaded demo for: {idea}")
+        
+        if mode == "plan":
+            return preloaded
+            
+        elif mode == "code":
+            # Extract filename and return specific code logic
+            filename = "main.py" # default
+            for line in idea.split("\n"):
+                if "FILE TO CREATE:" in line or "FILE:" in line:
+                    filename = line.split(":")[-1].strip()
+                    break
+            
+            code_content = ""
+            for pre_file, content in preloaded["all_code"].items():
+                if filename.endswith(pre_file):
+                    code_content = content
+                    break
+            
+            if code_content:
+                 return {"code": code_content}
+    
+    if MOCK_MODE:
+        _rate_limited = False
+        return mock_response(idea, mode)
+    
+    if USE_GROQ:
+        result = groq_request(idea, mode)
+        # Check if it fell back to mock (rate limited)
+        if result.get("_mock_fallback"):
+            _rate_limited = True
+            del result["_mock_fallback"]
+        else:
+            _rate_limited = False
+        return result
+    elif USE_GEMINI:
+        return gemini_request(idea, mode)
+    else:
+        return mock_response(idea, mode)
