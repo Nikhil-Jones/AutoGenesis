@@ -1,124 +1,103 @@
-# Autogenesis
+# Autogenesis 🧬
 
-**Self-learning AI agent that plans, codes, tests, and deploys — autonomously.**
+**The AI Developer That Grows with You.**
 
-## Quick Start
+Autogenesis is an autonomous coding agent that plans, writes, tests, and deploys full-stack applications. Unlike standard code assistants, it has **long-term memory**, an **evolving skill tree**, and **reinforcement learning** mechanics that improve its performance over time.
 
+![Autogenesis Demo](https://via.placeholder.com/800x400?text=Autogenesis+Dashboard)
+
+---
+
+## 🚀 Key Features
+
+*   **⚡ Instant Code Generation**: Powered by **Groq Llama 3**, generating full-stack apps in seconds.
+*   **🧠 Deep Reasoning**: **Google Gemini 2.0** fallback for complex logical architecture.
+*   **🌳 Growing Skill Tree**: The more you build, the smarter it gets. Unlocks new languages and patterns.
+*   **💾 Long-Term Memory**: Remembers past projects and code styles using **Kestra**.
+*   **🚀 One-Click Deployment**: Deploys instantly to **Vercel** with a public URL.
+*   **🎓 Self-Improvement**: Uses **Oumi RLHF** to fine-tune based on your ratings.
+
+---
+
+## 🛠️ Tech Stack & Architecture
+
+Autogenesis is built on a modern, scalable stack:
+
+*   **Frontend**: Next.js 14, TypeScript, Tailwind CSS (Glassmorphism UI)
+*   **Backend**: Python FastAPI, Dockerized
+*   **AI Engines**: Groq (Llama 3.3), Google Gemini 2.0 Flash
+*   **Orchestration**: Kestra (Memory/Workflows)
+*   **Training**: Oumi (RLHF/DPO)
+*   **CI/CD**: Vercel & Render
+*   **Code Review**: CodeRabbit & Cline
+
+---
+
+## 📦 Installation
+
+### Prerequisites
+*   Node.js 18+
+*   Python 3.9+
+*   Docker (optional, for containerized backend)
+
+### 1. Clone the Repository
 ```bash
-# Backend
-cd backend && pip install -r requirements.txt
+git clone https://github.com/your-username/autogenesis.git
+cd autogenesis
+```
+
+### 2. Backend Setup
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+
+# Create .env file with your keys
+cp .env.example .env
+# Edit .env and add GROQ_API_KEY / GEMINI_API_KEY
+```
+
+Run the server:
+```bash
 python -m uvicorn api:app --reload
-
-# Frontend
-cd frontend && npm install && npm run dev
-
-# CLI (Cline)
-python cli/autogenesis.py generate "Build a calculator"
 ```
 
-## Features
+### 3. Frontend Setup
+```bash
+cd ../frontend
+npm install
+npm run dev
+```
 
-| Feature | Description |
-|---------|-------------|
-| Multi-file Generation | Creates complete projects with proper structure |
-| Auto Unit Tests | Generates test files for your code |
-| Auto CI/CD | Creates GitHub Actions workflows |
-| Auto Dockerfile | Production-ready Docker configs |
-| Live Preview | Real-time HTML/CSS/JS preview |
-| Voice Input | Speak your project idea |
-| Learning System | AI gains XP and levels up |
+Open [http://localhost:3000](http://localhost:3000) to start building!
 
 ---
 
-## Sponsor Integrations
+## 🤖 Using the Agent
 
-### 1. Cline CLI
-
-```bash
-# Generate a project
-python cli/autogenesis.py generate "REST API with auth"
-
-# Auto-fix bugs
-python cli/autogenesis.py fix main.py --error "TypeError"
-
-# Generate tests
-python cli/autogenesis.py test main.py
-
-# View AI stats
-python cli/autogenesis.py stats
-```
-
-### 2. Kestra AI Agent
-
-Located at `kestra/flows/summarize_memory.yaml`:
-
-- Summarizes all generated projects
-- Analyzes language diversity
-- Makes decisions based on data
-- Triggers daily or on milestones
-
-```bash
-# Run with Kestra
-kestra flow execute company.autogenesis autogenesis-ai-summarizer
-```
-
-### 3. Oumi RL Fine-Tuning
-
-Located at `backend/oumi_rl.py`:
-
-```bash
-# Collect feedback
-python oumi_rl.py feedback "def hello(): pass" 5 "hello world"
-
-# Train with feedback
-python oumi_rl.py train
-
-# View RL stats
-python oumi_rl.py stats
-```
-
-### 4. Vercel Deployment
-
-Configured in `vercel.json`:
-
-```bash
-vercel --prod
-```
-
-### 5. CodeRabbit
-
-Configured in `.coderabbit.yaml`:
-
-- Auto-reviews all PRs
-- Security vulnerability detection
-- Code quality suggestions
-- Documentation checks
+1.  **Describe your idea**: "Build a personal portfolio with a dark theme."
+2.  **Wait for Planning**: The agent breaks it down into files (HTML, CSS, JS).
+3.  **Live Preview**: Watch the code appear and run instantly in the browser.
+4.  **Deploy**: Click "Deploy to Vercel" to go live.
+5.  **Rate & Improve**: Rate the code to train the **Oumi** model for next time.
 
 ---
 
-## Project Structure
+## 🤝 Contributing
 
-```
-autogenesis/
-├── backend/           # FastAPI server
-│   ├── agent/         # AI modules
-│   ├── api.py         # REST endpoints
-│   └── oumi_rl.py     # Oumi integration
-├── frontend/          # Next.js UI
-├── cli/               # Cline CLI
-├── kestra/            # Kestra flows
-├── vercel.json        # Vercel config
-└── .coderabbit.yaml   # CodeRabbit config
-```
+We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
-## API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/run-stream` | POST | Generate project (SSE) |
-| `/intelligence` | GET | Get AI stats |
-| `/export` | GET | Download ZIP |
+**Sponsors & Tools Used:**
+*   [Groq](https://groq.com)
+*   [Google Gemini](https://deepmind.google/technologies/gemini/)
+*   [Kestra](https://kestra.io)
+*   [Oumi](https://oumi.ai)
+*   [CodeRabbit](https://coderabbit.ai)
+*   [Vercel](https://vercel.com)
 
 ---
 
-Built for Hackathon 2024
+## 📄 License
+
+MIT License. See [LICENSE](LICENSE) for details.
