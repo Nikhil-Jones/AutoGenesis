@@ -14,6 +14,8 @@ class Prompt(BaseModel):
     idea: str
     improve: bool = False
 
+
+
 # -------------------------------
 # APP INSTANCE
 # -------------------------------
@@ -27,6 +29,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+class OptimizeRequest(BaseModel):
+    idea: str
+
+@app.post("/optimize")
+async def optimize_prompt(req: OptimizeRequest):
+    """Optimize the user's prompt using AI."""
+    from agent.agent import run_agent
+    result = run_agent(req.idea, mode="optimize")
+    return {"optimized_prompt": result.get("response", req.idea)}
 
 # -------------------------------
 # ROUTES

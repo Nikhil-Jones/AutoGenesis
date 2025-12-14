@@ -41,6 +41,48 @@ def run_agent(idea: str, mode: str = "plan"):
     """
     global _rate_limited
     
+    # CHECK FOR PRELOADED DEMOS (Hackathon Mode)
+    from .preloaded import get_preloaded_project
+    preloaded = get_preloaded_project(idea)
+    
+    if preloaded and mode != "optimize": 
+        print(f"✨ Using preloaded demo for: {idea}")
+        
+        if mode == "plan":
+            # Return just the plan part for planner.py
+            return preloaded
+            
+        elif mode == "code":
+            # Extract filename and return specific code logic
+            filename = "main.py" # default
+            for line in idea.split("\n"):
+                if "FILE TO CREATE:" in line or "FILE:" in line:
+                    filename = line.split(":")[-1].strip()
+                    break
+            
+            # Find matching file in preloaded code
+            # We check if the requested filename ends with one of our preloaded files
+            # because path might differ (e.g. "frontend/index.html" vs "index.html")
+            code_content = ""
+            for pre_file, content in preloaded["all_code"].items():
+                if filename.endswith(pre_file):
+                    code_content = content
+                    break
+            
+            if not code_content:
+                # If file not found in preloaded (e.g. tests, dockerfile), return empty 
+                # or let it fall through to normal generation? 
+                # Better to let it generate normally or return valid empty structure.
+                # But for 'main.js', 'index.html' we MUST return content.
+                pass 
+            else:
+                 return {"code": code_content}
+
+        # If we reach here, we might be in some other mode or file not found in preloaded
+        # For simple demo, we can just let it fall through to normal generation 
+        # OR implementation specific logic.
+        # But wait, if I return None, it continues below.
+    
     if MOCK_MODE:
         _rate_limited = False
         return mock_response(idea, mode)
@@ -103,6 +145,11 @@ def mock_response(idea: str, mode: str):
             ],
             "files": files
         }
+    
+
+
+    elif mode == "optimize":
+        return {"response": f"I optimized your prompt directly: Build a professional {idea} with modern UI, robust error handling, and complete documentation."}
     
     elif mode == "code":
         # Extract filename from prompt
@@ -250,6 +297,15 @@ def groq_request(idea: str, mode: str):
 
 Return ONLY valid JSON with this structure:
 {{"phases": [{{"name": "Phase 1: ...", "tasks": ["task1", "task2"]}}]}}"""
+
+        elif mode == "optimize":
+            prompt = f"""You are an expert Prompt Engineer. Rewrite this idea into a detailed, professional software development prompt.
+Focus on: Modern UI (glassmorphism/dark mode), clean architecture, and best practices.
+Keep it strictly as a prompt for an AI coder.
+
+Idea: {idea}
+
+Return ONLY the optimized prompt text."""
         elif mode == "code":
             prompt = f"""You are an expert developer. Generate clean, working Python code for: {idea}
 
@@ -314,6 +370,8 @@ def gemini_request(idea: str, mode: str):
         
         if mode == "plan":
             prompt = f"You are an AI software architect. Create a structured project plan (JSON) for: {idea}. Return ONLY valid JSON with 'phases' list."
+        elif mode == "optimize":
+            prompt = f"Rewrite this into a detailed developer prompt for an AI: {idea}. Focus on modern UI and best practices. Return ONLY the rewritten prompt."
         elif mode == "code":
             prompt = f"You are an expert developer. Generate code for: {idea}. Return ONLY the code."
         elif mode == "review":

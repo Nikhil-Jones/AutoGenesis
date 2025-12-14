@@ -108,6 +108,8 @@ export default function Home() {
   const [rateLimited, setRateLimited] = useState(false);
   const [deployUrl, setDeployUrl] = useState("");
   const [explaining, setExplaining] = useState(false);
+  const [optimizing, setOptimizing] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const [explanations, setExplanations] = useState<{ line: number; code: string; explanation: string }[]>([]);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -143,6 +145,19 @@ export default function Home() {
     };
     recognition.onend = () => setIsListening(false);
     try { recognition.start(); } catch { setIsListening(false); }
+  };
+
+  const optimizeIdea = async () => {
+    if (!idea.trim()) return;
+    setOptimizing(true);
+    try {
+      const res = await fetch("http://localhost:8000/optimize", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idea })
+      });
+      const data = await res.json();
+      if (data.optimized_prompt) setIdea(data.optimized_prompt);
+    } catch { } finally { setOptimizing(false); }
   };
 
   const getPreviewSrc = () => {
@@ -225,6 +240,15 @@ export default function Home() {
   };
 
   const hasWeb = result?.code_files?.some(f => f.endsWith(".html"));
+
+  // Check for Escape key to exit full screen
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsFullScreen(false);
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#000] text-[#fafafa] antialiased">
@@ -443,6 +467,13 @@ export default function Home() {
               className={`text-xs px-2.5 py-1 rounded transition ${isListening ? "bg-red-500/20 text-red-400" : "text-[#525252] hover:text-white"}`}
             >
               {isListening ? "Listening..." : "Voice input"}
+            </button>
+            <button
+              onClick={optimizeIdea}
+              disabled={optimizing || !idea.trim()}
+              className="text-xs px-2.5 py-1 rounded text-[#a78bfa] hover:bg-[#a78bfa]/10 transition disabled:opacity-50"
+            >
+              {optimizing ? "Optimizing..." : "✨ Optimize"}
             </button>
             <button
               onClick={loading ? () => abortRef.current?.abort() : () => run(false)}
@@ -680,12 +711,36 @@ export default function Home() {
                   <button onClick={() => setShowPreview(!showPreview)} className="text-[10px] text-[#525252] hover:text-white transition">
                     {showPreview ? "Hide" : "Show"}
                   </button>
+                  <button onClick={() => setIsFullScreen(true)} className="ml-2 text-[10px] text-[#525252] hover:text-white transition">
+                    Full Screen
+                  </button>
                 </div>
                 {showPreview && (
                   <div className="bg-white aspect-video max-h-80">
                     <iframe src={getPreviewSrc()} className="w-full h-full border-0" sandbox="allow-scripts" />
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Full Screen Overlay */}
+            {isFullScreen && (
+              <div className="fixed inset-0 z-50 bg-[#000] flex flex-col">
+                <div className="h-10 bg-[#0a0a0a] border-b border-[#1a1a1a] flex items-center justify-between px-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-[#a3a3a3]">Local Preview</span>
+                    <div className="bg-[#22c55e] w-1.5 h-1.5 rounded-full animate-pulse"></div>
+                  </div>
+                  <button
+                    onClick={() => setIsFullScreen(false)}
+                    className="text-xs bg-[#1a1a1a] border border-[#262626] px-3 py-1 rounded text-[#a3a3a3] hover:text-white transition"
+                  >
+                    Close (Esc)
+                  </button>
+                </div>
+                <div className="flex-1 bg-white">
+                  <iframe src={getPreviewSrc()} className="w-full h-full border-0" sandbox="allow-scripts" />
+                </div>
               </div>
             )}
 
@@ -701,6 +756,6 @@ export default function Home() {
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 }
