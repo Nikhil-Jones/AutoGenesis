@@ -114,7 +114,7 @@ export default function Home() {
   const abortRef = useRef<AbortController | null>(null);
 
   const API_URL = process.env.NODE_ENV === "production"
-    ? "https://autogenesis-w3d6.onrender.com"
+    ? "https://autogenesis-ui7w.onrender.com"
     : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000");
 
   useEffect(() => {
