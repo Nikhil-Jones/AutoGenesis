@@ -6,7 +6,7 @@ Contains manually crafted, high-quality projects that override standard AI gener
 def get_preloaded_project(schema: str) -> dict:
     """Return a preloaded project based on the schema/keyword."""
     
-    if "calculator" in schema.lower():
+    if "calculator" in schema.lower() or "calc" in schema.lower():
         return {
             "project_name": "quantum-calc",
             "description": "A premium, high-performance calculator with glassmorphism UI.",

@@ -134,7 +134,22 @@ async def get_status():
     return {
         "rate_limited": is_rate_limited(),
         "provider": "groq" if USE_GROQ else "gemini" if USE_GEMINI else "mock",
-        "mock_mode": MOCK_MODE
+        "mock_mode": MOCK_MODE,
+        "env_check": {
+            "GROQ": bool(os.getenv("GROQ_API_KEY")),
+            "GEMINI": bool(os.getenv("GEMINI_API_KEY"))
+        }
+    }
+
+@app.get("/debug")
+async def debug_agent():
+    """Debug endpoint to check preloaded logic and env."""
+    from agent.preloaded import get_preloaded_project
+    calc_demo = get_preloaded_project("calculator")
+    return {
+        "preloaded_check": "SUCCESS" if calc_demo else "FAILED",
+        "demo_name": calc_demo.get("project_name") if calc_demo else None,
+        "env": os.environ.copy() # CAUTION: Don't show this in prod usually, but needed for debug now
     }
 
 class ExplainRequest(BaseModel):
