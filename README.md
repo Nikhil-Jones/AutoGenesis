@@ -1,114 +1,106 @@
 # Autogenesis 🧬
 
-**The AI Developer That Grows with You.**
+**The Self-Evolving AI Developer**
 
-Autogenesis is an autonomous coding agent that plans, writes, tests, and deploys full-stack applications. Unlike standard code assistants, it has **long-term memory**, an **evolving skill tree**, and **reinforcement learning** mechanics that improve its performance over time.
+[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://opensource.org/licenses/MIT)
+[![Status: Beta](https://img.shields.io/badge/Status-Beta-green.svg)]()
+[![AI: Groq](https://img.shields.io/badge/AI-Groq%20LPU-orange.svg)]()
+[![AI: Gemini](https://img.shields.io/badge/AI-Gemini%202.0-blue.svg)]()
 
-![Autogenesis Dashboard](assets/dashboard.png)
+> *Typical coding assistants reset every session. Autogenesis remembers, learns, and grows with you.*
 
 ---
 
-## 🚀 Key Features
+![Autogenesis Dashboard](assets/dashboard.png)
 
-*   **⚡ Instant Code Generation**: Powered by **Groq Llama 3**, generating full-stack apps in seconds.
-*   **🧠 Deep Reasoning**: **Google Gemini 2.0** fallback for complex logical architecture.
-*   **🌳 Growing Skill Tree**: The more you build, the smarter it gets. Unlocks new languages and patterns.
-*   **💾 Long-Term Memory**: Remembers past projects and code styles using **Kestra**.
-*   **🚀 One-Click Deployment**: Deploys instantly to **Vercel** with a public URL.
-*   **🎓 Self-Improvement**: Uses **Oumi RLHF** to fine-tune based on your ratings.
+## 🔮 What is Autogenesis?
 
-### Visual Demo
+Autogenesis is an autonomous software engineer that lives in your browser. It doesn't just autocomplete code; it **plans, architects, builds, tests, and deploys** full-stack applications from a single prompt.
 
-| **Live Preview** | **Skill Tree Growth** |
-| :---: | :---: |
-| ![Glassmorphism Calculator](assets/demo_preview.png) | ![Skill Tree](assets/skill_tree.png) |
+But the real magic is in its **growth mechanics**:
+*   **Memory**: It remembers every project you've built.
+*   **XP System**: Every feature you implement earns XP.
+*   **Skill Tree**: As it levels up, it unlocks new capabilities (e.g., Python Lv1 -> Python Lv5).
+*   **RLHF Training**: Rate its code (1-5 stars) to train a custom model adapter via **Oumi**.
 
-*Full code view and terminal:*
+---
+
+## ✨ Features at a Glance
+
+| Feature | Description | Tech Provider |
+| :--- | :--- | :--- |
+| **⚡ Instant Builds** | Generates full-stack apps in seconds using LPUs. | **Groq** |
+| **🧠 Deep Logic** | Handles complex architecture & reasoning. | **Gemini 2.0** |
+| **💾 Long-Term Memory** | Tracks project history & evolution. | **Kestra** |
+| **🎯 Self-Correction** | Auto-fixes bugs & dependency errors. | **CodeRabbit** |
+| **🚀 Instant Deploy** | One-click public hosting. | **Vercel** |
+| **🎓 Adaptive Learning** | Learns from your feedback ratings. | **Oumi** |
+
+---
+
+## 📸 Visual Tour
+
+### Live Preview & Editing
+*Watch code turn into reality instantly with full-screen previews.*
+![Glassmorphism Calculator](assets/demo_preview.png)
+
+### The AI Skill Tree
+*Watch your agent evolve from "Baby" to "Sage" as you build more app.*
+![Skill Tree](assets/skill_tree.png)
+
+### Production-Ready Code
+*Clean, well-structured code with automated error checking.*
 ![Code Editor](assets/code_view.png)
 
 ---
 
----
+## 🚀 Quick Start
 
-## 🛠️ Tech Stack & Architecture
-
-Autogenesis is built on a modern, scalable stack:
-
-*   **Frontend**: Next.js 14, TypeScript, Tailwind CSS (Glassmorphism UI)
-*   **Backend**: Python FastAPI, Dockerized
-*   **AI Engines**: Groq (Llama 3.3), Google Gemini 2.0 Flash
-*   **Orchestration**: Kestra (Memory/Workflows)
-*   **Training**: Oumi (RLHF/DPO)
-*   **CI/CD**: Vercel & Render
-*   **Code Review**: CodeRabbit & Cline
-
----
-
-## 📦 Installation
-
-### Prerequisites
+### 1. Requirements
 *   Node.js 18+
 *   Python 3.9+
-*   Docker (optional, for containerized backend)
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/your-username/autogenesis.git
-cd autogenesis
-```
-
-### 2. Backend Setup
+### 2. Backend (FastAPI)
 ```bash
 cd backend
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+source .venv/bin/activate
 pip install -r requirements.txt
-
-# Create .env file with your keys
-cp .env.example .env
-# Edit .env and add GROQ_API_KEY / GEMINI_API_KEY
-```
-
-Run the server:
-```bash
+cp .env.example .env  # Add your GROQ_API_KEY
 python -m uvicorn api:app --reload
 ```
 
-### 3. Frontend Setup
+### 3. Frontend (Next.js)
 ```bash
-cd ../frontend
+cd frontend
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to start building!
+Visit `http://localhost:3000` and start building!
 
 ---
 
-## 🤖 Using the Agent
+## 🛠️ Architecture
 
-1.  **Describe your idea**: "Build a personal portfolio with a dark theme."
-2.  **Wait for Planning**: The agent breaks it down into files (HTML, CSS, JS).
-3.  **Live Preview**: Watch the code appear and run instantly in the browser.
-4.  **Deploy**: Click "Deploy to Vercel" to go live.
-5.  **Rate & Improve**: Rate the code to train the **Oumi** model for next time.
+Autogenesis uses a multi-agent system to simulate a real dev team:
 
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-**Sponsors & Tools Used:**
-*   [Groq](https://groq.com)
-*   [Google Gemini](https://deepmind.google/technologies/gemini/)
-*   [Kestra](https://kestra.io)
-*   [Oumi](https://oumi.ai)
-*   [CodeRabbit](https://coderabbit.ai)
-*   [Vercel](https://vercel.com)
+1.  **The Architect** (Gemini): Plans the project structure.
+2.  **The Coder** (Groq): Writes high-speed code logic.
+3.  **The Reviewer** (CodeRabbit): Checks for bugs and security.
+4.  **The DevOps** (Vercel): Handles deployment pipelines.
 
 ---
 
-## 📄 License
+## 🤝 Community
 
-MIT License. See [LICENSE](LICENSE) for details.
+Built for the **2024 AI Hackathon**.
+
+*   **Groq** for speed.
+*   **Gemini** for intelligence.
+*   **Kestra** for orchestration.
+*   **Oumi** for training.
+
+---
+
+*(c) 2024 Autogenesis Team. Open Source.*
