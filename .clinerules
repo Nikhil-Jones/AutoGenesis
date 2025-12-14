@@ -1,0 +1,33 @@
+# Cline Rules for Autogenesis
+
+## Project Overview
+Autogenesis is an autonomous AI coding agent platform. It has two main components:
+1. **Backend**: FastAPI (Python) in `backend/`
+2. **Frontend**: Next.js (TypeScript) in `frontend/`
+
+## Development Guidelines
+
+### Backend
+- **Path**: `d:\NJ\Skills\Projects\autogenesis\backend`
+- **Run**: `python -m uvicorn api:app --reload`
+- **Key Files**:
+    - `agent/agent.py`: Core logic (Groq/Gemini routing).
+    - `agent/orchestrator.py`: Pipeline management.
+    - `api.py`: FastAPI endpoints.
+
+### Frontend
+- **Path**: `d:\NJ\Skills\Projects\autogenesis\frontend`
+- **Run**: `npm run dev`
+- **Key Files**:
+    - `src/app/page.tsx`: Main UI.
+
+## Tech Stack
+- **Python**: 3.9+
+- **TypeScript**: 5.x
+- **Tailwind CSS**: For styling (`frontend/src/app/globals.css`)
+- **AI Providers**: Groq (Llama 3), Gemini 2.0
+
+## Style Guide
+- **Code**: Clean, modular, and type-safe.
+- **UI**: Modern, dark mode, glassmorphism, "Wow" factor.
+- **Testing**: Use `pytest` for backend.

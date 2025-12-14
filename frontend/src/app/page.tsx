@@ -113,17 +113,21 @@ export default function Home() {
   const [explanations, setExplanations] = useState<{ line: number; code: string; explanation: string }[]>([]);
   const abortRef = useRef<AbortController | null>(null);
 
+  const API_URL = process.env.NODE_ENV === "production"
+    ? "https://autogenesis-w3d6.onrender.com"
+    : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000");
+
   useEffect(() => {
-    fetch("http://localhost:8000/intelligence").then(r => r.json()).then(setIntelligence).catch(() => { });
-    fetch("http://localhost:8000/skills").then(r => r.json()).then(setSkillTree).catch(() => { });
-    fetch("http://localhost:8000/templates").then(r => r.json()).then(setTemplates).catch(() => { });
-    fetch("http://localhost:8000/memory").then(r => r.json()).then(setMemory).catch(() => { });
-    fetch("http://localhost:8000/status").then(r => r.json()).then(d => setRateLimited(d.rate_limited)).catch(() => { });
+    fetch(`${API_URL}/intelligence`).then(r => r.json()).then(setIntelligence).catch(() => { });
+    fetch(`${API_URL}/skills`).then(r => r.json()).then(setSkillTree).catch(() => { });
+    fetch(`${API_URL}/templates`).then(r => r.json()).then(setTemplates).catch(() => { });
+    fetch(`${API_URL}/memory`).then(r => r.json()).then(setMemory).catch(() => { });
+    fetch(`${API_URL}/status`).then(r => r.json()).then(d => setRateLimited(d.rate_limited)).catch(() => { });
   }, []);
 
   const refreshData = () => {
-    fetch("http://localhost:8000/intelligence").then(r => r.json()).then(setIntelligence).catch(() => { });
-    fetch("http://localhost:8000/skills").then(r => r.json()).then(setSkillTree).catch(() => { });
+    fetch(`${API_URL}/intelligence`).then(r => r.json()).then(setIntelligence).catch(() => { });
+    fetch(`${API_URL}/skills`).then(r => r.json()).then(setSkillTree).catch(() => { });
   };
 
   const startVoice = () => {
@@ -151,7 +155,7 @@ export default function Home() {
     if (!idea.trim()) return;
     setOptimizing(true);
     try {
-      const res = await fetch("http://localhost:8000/optimize", {
+      const res = await fetch(`${API_URL}/optimize`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idea })
       });
@@ -210,7 +214,7 @@ export default function Home() {
     setLoading(true); setProgress(null); setResult(null); setSelectedFile("");
     abortRef.current = new AbortController();
     try {
-      const res = await fetch("http://localhost:8000/run-stream", {
+      const res = await fetch(`${API_URL}/run-stream`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idea: targetIdea, improve }), signal: abortRef.current.signal,
       });
@@ -276,7 +280,7 @@ export default function Home() {
               </div>
             </div>
           )}
-          <a href="http://localhost:8000/export" className="text-xs text-[#525252] hover:text-white transition">Export</a>
+          <a href={`${API_URL}/export`} className="text-xs text-[#525252] hover:text-white transition">Export</a>
         </div>
       </nav>
 
@@ -511,7 +515,7 @@ export default function Home() {
                   if (!code) return;
                   setExplaining(true);
                   try {
-                    const res = await fetch("http://localhost:8000/explain", {
+                    const res = await fetch(`${API_URL}/explain`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ code, language: selectedFile.split(".").pop() || "Python" })
@@ -528,7 +532,7 @@ export default function Home() {
               </button>
               <button
                 onClick={async () => {
-                  const res = await fetch("http://localhost:8000/deploy", {
+                  const res = await fetch(`${API_URL}/deploy`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ project_name: result.plan?.project_name || "autogenesis" })
@@ -663,7 +667,7 @@ export default function Home() {
                     onClick={async () => {
                       const code = result.all_code?.[selectedFile] || "";
                       const errors = result.review?.errors?.map(e => e.message).join("; ") || "";
-                      const res = await fetch("http://localhost:8000/fix", {
+                      const res = await fetch(`${API_URL}/fix`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ code, error: errors })
