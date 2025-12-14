@@ -240,7 +240,24 @@ export default function Home() {
           }
         }
       }
-    } catch { } finally { setLoading(false); }
+    } catch (e) {
+      console.error("Streaming failed, falling back to standard request:", e);
+      try {
+        const res = await fetch(`${API_URL}/run`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idea: targetIdea, improve }),
+        });
+        const data = await res.json();
+        if (data.result) {
+          setResult(data.result);
+          if (data.result.code_files?.length) setSelectedFile(data.result.code_files[0]);
+          refreshData();
+        }
+      } catch (e2) {
+        console.error("Fallback failed:", e2);
+        // setResult(null); // Optional: show error state
+      }
+    } finally { setLoading(false); }
   };
 
   const hasWeb = result?.code_files?.some(f => f.endsWith(".html"));
